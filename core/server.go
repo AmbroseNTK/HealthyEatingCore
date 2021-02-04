@@ -4,15 +4,18 @@ import (
 	"context"
 	"log"
 
+	firebase "firebase.google.com/go/v4"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"google.golang.org/api/option"
 )
 
 type Server struct {
 	Echo     *echo.Echo
 	Config   *Configuration
+	Firebase *firebase.App
 	DBClient *mongo.Client
 	DB       *mongo.Database
 	Routers  []Router
@@ -49,6 +52,8 @@ func (server *Server) Create() {
 		log.Fatal(err)
 	}
 
+	log.Println("Connecting to MongoDB")
+
 	err = client.Connect(context.TODO())
 
 	if err != nil {
@@ -57,6 +62,14 @@ func (server *Server) Create() {
 
 	server.DBClient = client
 	server.DB = server.DBClient.Database(server.Config.DBName)
+
+	log.Println("Connecting to Firebase")
+	firebaseApp, firebaseError := firebase.NewApp(context.Background(), nil, option.WithServiceAccountFile(server.Config.FirebaseKeyFile))
+	if firebaseError != nil {
+		log.Fatal("Cannot init Firebase")
+	}
+	server.Firebase = firebaseApp
+
 }
 
 func (server *Server) Start(address string) {

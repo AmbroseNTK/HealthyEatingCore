@@ -7,9 +7,10 @@ import (
 )
 
 type Configuration struct {
-	Address       string `json:"address"`
-	ConnectionURL string `json:"connectionURL"`
-	DBName        string `json:"db_name"`
+	Address         string `json:"address"`
+	ConnectionURL   string `json:"connectionURL"`
+	DBName          string `json:"db_name"`
+	FirebaseKeyFile string `json:"firebase_key"`
 }
 
 func (c *Configuration) Load(configFile string) {
