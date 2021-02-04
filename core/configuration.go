@@ -7,8 +7,9 @@ import (
 )
 
 type Configuration struct {
-	Address string `json:"address"`
+	Address       string `json:"address"`
 	ConnectionURL string `json:"connectionURL"`
+	DBName        string `json:"db_name"`
 }
 
 func (c *Configuration) Load(configFile string) {

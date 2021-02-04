@@ -1,4 +1,5 @@
 {
     "address": ":8081",
-    "connectionURL": "mongodb+srv://admin:admin@cluster0.zcocj.mongodb.net/healthy_eating_dev?retryWrites=true&w=majority"
+    "connectionURL": "mongodb+srv://admin:admin@cluster0.zcocj.mongodb.net/healthy_eating_dev?retryWrites=true&w=majority",
+    "db_name": "healthy_eating_dev"
 }

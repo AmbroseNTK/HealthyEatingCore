@@ -11,10 +11,11 @@ import (
 )
 
 type Server struct {
-	Echo    *echo.Echo
-	Config  *Configuration
-	db      *mongo.Client
-	Routers []Router
+	Echo     *echo.Echo
+	Config   *Configuration
+	DBClient *mongo.Client
+	DB       *mongo.Database
+	Routers  []Router
 }
 
 type Validator struct {
@@ -54,7 +55,8 @@ func (server *Server) Create() {
 		log.Fatal(err)
 	}
 
-	server.db = client
+	server.DBClient = client
+	server.DB = server.DBClient.Database(server.Config.DBName)
 }
 
 func (server *Server) Start(address string) {
@@ -68,5 +70,5 @@ func (server *Server) ConnectRouters() {
 }
 
 func (server *Server) Dispose() {
-	server.db.Disconnect(context.TODO())
+	server.DBClient.Disconnect(context.TODO())
 }

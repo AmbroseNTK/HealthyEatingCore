@@ -6,8 +6,8 @@ type UserProfile struct {
 	Email       string `json:"email" validate:"required,email"`
 	PhoneNumber string `json:"phone_number" validate:"required"`
 	Gender      string `json:"gender" validate:"required"`
-	DOB         string `json:"dob" validate:"required"`
-	Height      string `json:"height" validate:"required"`
-	Weight      string `json:"weight" validate:"required"`
+	DOB         uint64 `json:"dob" validate:"required"`
+	Height      uint   `json:"height" validate:"required"`
+	Weight      uint   `json:"weight" validate:"required"`
 	Race        string `json:"race"`
 }
