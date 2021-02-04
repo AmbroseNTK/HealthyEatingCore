@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 	"log"
-	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -11,9 +10,10 @@ import (
 )
 
 type Server struct {
-	e      *echo.Echo
-	Config *Configuration
-	db     *mongo.Client
+	Echo    *echo.Echo
+	Config  *Configuration
+	db      *mongo.Client
+	Routers []Router
 }
 
 func (server *Server) LoadConfig(configFile string) {
@@ -28,7 +28,7 @@ func (server *Server) LoadConfig(configFile string) {
 }
 
 func (server *Server) Create() {
-	server.e = echo.New()
+	server.Echo = echo.New()
 
 	// Connect to database
 
@@ -45,15 +45,21 @@ func (server *Server) Create() {
 
 	server.db = client
 
-	server.e.GET("/", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, map[string]interface{}{
-			"message": "Hello, world",
-		})
-	})
+	// server.Echo.GET("/", func(c echo.Context) error {
+	// 	return c.JSON(http.StatusOK, map[string]interface{}{
+	// 		"message": "Hello, world",
+	// 	})
+	// })
 }
 
 func (server *Server) Start(address string) {
-	server.e.Logger.Fatal(server.e.Start(server.Config.Address))
+	server.Echo.Logger.Fatal(server.Echo.Start(server.Config.Address))
+}
+
+func (server *Server) ConnectRouters() {
+	for _, router := range server.Routers {
+		router.Connect(server)
+	}
 }
 
 func (server *Server) Dispose() {
