@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -14,6 +15,14 @@ type Server struct {
 	Config  *Configuration
 	db      *mongo.Client
 	Routers []Router
+}
+
+type Validator struct {
+	validator *validator.Validate
+}
+
+func (v *Validator) Validate(i interface{}) error {
+	return v.validator.Struct(i)
 }
 
 func (server *Server) LoadConfig(configFile string) {
@@ -30,6 +39,8 @@ func (server *Server) LoadConfig(configFile string) {
 func (server *Server) Create() {
 	server.Echo = echo.New()
 
+	server.Echo.Validator = &Validator{validator: validator.New()}
+
 	// Connect to database
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(server.Config.ConnectionURL))
@@ -44,12 +55,6 @@ func (server *Server) Create() {
 	}
 
 	server.db = client
-
-	// server.Echo.GET("/", func(c echo.Context) error {
-	// 	return c.JSON(http.StatusOK, map[string]interface{}{
-	// 		"message": "Hello, world",
-	// 	})
-	// })
 }
 
 func (server *Server) Start(address string) {

@@ -23,8 +23,12 @@ func (r *UserRouter) Connect(s *core.Server) {
 
 	r.g.POST("/", func(c echo.Context) (err error) {
 		profile := new(models.UserProfile)
+
 		if err = c.Bind(profile); err != nil {
-			return c.JSON(http.StatusBadRequest, err)
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+		if err = c.Validate(profile); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 		return c.JSON(http.StatusOK, profile)
 	})

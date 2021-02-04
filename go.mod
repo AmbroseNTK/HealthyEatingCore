@@ -7,6 +7,7 @@ require (
 	github.com/Masterminds/vcs v1.13.1 // indirect
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/boltdb/bolt v1.3.1 // indirect
+	github.com/go-playground/validator/v10 v10.4.1
 	github.com/golang/dep v0.5.4 // indirect
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/jmank88/nuts v0.4.0 // indirect
