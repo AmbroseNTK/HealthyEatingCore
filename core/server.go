@@ -3,8 +3,10 @@ package core
 import (
 	"context"
 	"log"
+	"net/http"
 
 	firebase "firebase.google.com/go/v4"
+	"firebase.google.com/go/v4/auth"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -13,12 +15,14 @@ import (
 )
 
 type Server struct {
-	Echo     *echo.Echo
-	Config   *Configuration
-	Firebase *firebase.App
-	DBClient *mongo.Client
-	DB       *mongo.Database
-	Routers  []Router
+	Echo           *echo.Echo
+	Config         *Configuration
+	Firebase       *firebase.App
+	Auth           *auth.Client
+	DBClient       *mongo.Client
+	DB             *mongo.Database
+	Routers        []Router
+	AuthMiddleware func(next echo.HandlerFunc) echo.HandlerFunc
 }
 
 type Validator struct {
@@ -69,6 +73,36 @@ func (server *Server) Create() {
 		log.Fatal("Cannot init Firebase")
 	}
 	server.Firebase = firebaseApp
+
+	auth, authError := firebaseApp.Auth(context.TODO())
+
+	if authError != nil {
+		log.Fatal("Cannot load auth module")
+	}
+	server.Auth = auth
+
+	authMiddleware := func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			idToken := c.Request().Header.Get("Authorization")
+			if idToken == "" {
+				idToken = c.QueryParam("token")
+			}
+			if idToken == "" {
+				return echo.NewHTTPError(http.StatusUnauthorized, "Missing ID Token")
+			}
+			token, tokenError := auth.VerifyIDToken(context.TODO(), idToken)
+			if tokenError != nil {
+				return echo.ErrUnauthorized
+			}
+			c.Set("user", token)
+			if err := next(c); err != nil {
+				c.Error(err)
+			}
+			return nil
+		}
+	}
+
+	server.AuthMiddleware = authMiddleware
 
 }
 

@@ -6,6 +6,7 @@ import (
 	"main/core/models"
 	"net/http"
 
+	"firebase.google.com/go/v4/auth"
 	"github.com/labstack/echo/v4"
 )
 
@@ -22,11 +23,9 @@ func (r *UserRouter) Connect(s *core.Server) {
 	}
 
 	r.g.GET("/", func(c echo.Context) error {
-
-		return c.JSON(http.StatusOK, map[string]interface{}{
-			"message": "Hello, world",
-		})
-	})
+		token, _ := c.Get("user").(auth.Token)
+		return c.JSON(http.StatusOK, token.Firebase.Identities)
+	}, s.AuthMiddleware)
 
 	r.g.POST("/", func(c echo.Context) (err error) {
 		profile := new(models.UserProfile)
