@@ -11,3 +11,11 @@ type UserProfile struct {
 	Weight      uint   `json:"weight" validate:"required"`
 	Race        string `json:"race"`
 }
+
+type UserProfileUpdated struct {
+	Id          string `json:"id" validate:"required"`
+	DisplayName string `json:"display_name"`
+	PhoneNumber string `json:"phone_number"`
+	Height      uint   `json:"height"`
+	Weight      uint   `json:"weight"`
+}

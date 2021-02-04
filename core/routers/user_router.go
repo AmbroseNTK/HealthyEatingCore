@@ -22,6 +22,7 @@ func (r *UserRouter) Connect(s *core.Server) {
 	}
 
 	r.g.GET("/", func(c echo.Context) error {
+
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"message": "Hello, world",
 		})
