@@ -34,10 +34,10 @@ func (b *UserBusiness) Create(user models.UserProfile) error {
 	return nil
 }
 
-func (b *UserBusiness) Update(userUpdated models.UserProfileUpdated) error {
+func (b *UserBusiness) Update(id string, userUpdated models.UserProfileUpdated) error {
 	updatedResult := b.DB.Collection("users").FindOneAndUpdate(context.TODO(),
 		map[string]interface{}{
-			"id": userUpdated.Id,
+			"id": id,
 		}, userUpdated)
 	if updatedResult.Err() != nil {
 		return updatedResult.Err()

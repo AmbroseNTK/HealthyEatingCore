@@ -46,4 +46,8 @@ func (r *UserRouter) Connect(s *core.Server) {
 		return c.JSON(http.StatusOK, profile)
 	})
 
+	// [PUT] Input: Body (UserProfileUpdated)
+
+	// [DELETE] Input user's id
+
 }
