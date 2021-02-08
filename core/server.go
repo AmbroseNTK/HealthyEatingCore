@@ -90,9 +90,9 @@ func (server *Server) Create() {
 			if idToken == "" {
 				return echo.NewHTTPError(http.StatusUnauthorized, "Missing ID Token")
 			}
-			token, tokenError := auth.VerifyIDToken(context.TODO(), idToken)
+			token, tokenError := auth.VerifyIDToken(context.Background(), idToken)
 			if tokenError != nil {
-				return echo.ErrUnauthorized
+				return echo.NewHTTPError(http.StatusUnauthorized, tokenError.Error())
 			}
 			c.Set("user", token)
 			if err := next(c); err != nil {

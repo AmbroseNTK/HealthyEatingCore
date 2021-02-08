@@ -18,3 +18,8 @@ type UserProfileUpdated struct {
 	Height      uint   `json:"height,omitempty"`
 	Weight      uint   `json:"weight,omitempty"`
 }
+
+type UserAuth struct {
+	Email    string `json:"username"`
+	Password string `json:"password"`
+}

@@ -11,6 +11,7 @@ type Configuration struct {
 	ConnectionURL   string `json:"connectionURL"`
 	DBName          string `json:"db_name"`
 	FirebaseKeyFile string `json:"firebase_key"`
+	AuthSecret      string `json:"auth_secret"`
 }
 
 func (c *Configuration) Load(configFile string) {

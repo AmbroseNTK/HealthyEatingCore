@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"log"
 	"main/core"
 	"main/core/business"
 	"main/core/models"
@@ -22,6 +23,10 @@ func (r *UserRouter) Connect(s *core.Server) {
 		DB: s.DB,
 	}
 
+	customAuth, err := business.NewAuthBusiness(s.DB, s.Config.AuthSecret)
+	if err != nil {
+		log.Fatal("Failed to authorizing")
+	}
 	r.g.GET("/", func(c echo.Context) error {
 		token, _ := c.Get("user").(auth.Token)
 		return c.JSON(http.StatusOK, token.Firebase.Identities)
@@ -44,6 +49,21 @@ func (r *UserRouter) Connect(s *core.Server) {
 		}
 
 		return c.JSON(http.StatusOK, profile)
+	})
+
+	r.g.POST("/registration", func(c echo.Context) (err error) {
+		userAuth := new(models.UserAuth)
+		if err = c.Bind(userAuth); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+		if err = c.Validate(userAuth); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+		err = customAuth.Register(userAuth)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+		}
+		return c.String(http.StatusOK, "Registrated")
 	})
 
 	// [PUT] Input: Body (UserProfileUpdated)
