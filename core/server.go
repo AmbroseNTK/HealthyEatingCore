@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"log"
+	"main/core/middlewares"
 	"net/http"
 
 	firebase "firebase.google.com/go/v4"
@@ -15,14 +16,15 @@ import (
 )
 
 type Server struct {
-	Echo           *echo.Echo
-	Config         *Configuration
-	Firebase       *firebase.App
-	Auth           *auth.Client
-	DBClient       *mongo.Client
-	DB             *mongo.Database
-	Routers        []Router
-	AuthMiddleware func(next echo.HandlerFunc) echo.HandlerFunc
+	Echo              *echo.Echo
+	Config            *Configuration
+	Firebase          *firebase.App
+	Auth              *auth.Client
+	DBClient          *mongo.Client
+	DB                *mongo.Database
+	Routers           []Router
+	AuthMiddleware    func(next echo.HandlerFunc) echo.HandlerFunc
+	AuthWiddlewareJWT *middlewares.AuthMiddleware
 }
 
 type Validator struct {
@@ -100,10 +102,11 @@ func (server *Server) Create() {
 			}
 			return nil
 		}
+
 	}
 
 	server.AuthMiddleware = authMiddleware
-
+	server.AuthWiddlewareJWT = middlewares.NewAuthMiddleware(server.Config.AuthSecret)
 }
 
 func (server *Server) Start(address string) {

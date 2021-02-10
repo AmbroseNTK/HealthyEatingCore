@@ -7,7 +7,6 @@ import (
 	"main/core/models"
 	"net/http"
 
-	"firebase.google.com/go/v4/auth"
 	"github.com/labstack/echo/v4"
 )
 
@@ -28,9 +27,9 @@ func (r *UserRouter) Connect(s *core.Server) {
 		log.Fatal("Failed to authorizing")
 	}
 	r.g.GET("/", func(c echo.Context) error {
-		token, _ := c.Get("user").(auth.Token)
-		return c.JSON(http.StatusOK, token.Firebase.Identities)
-	}, s.AuthMiddleware)
+		user := c.Get("user")
+		return c.JSON(http.StatusOK, user)
+	}, s.AuthWiddlewareJWT.Auth)
 
 	r.g.POST("/", func(c echo.Context) (err error) {
 		profile := new(models.UserProfile)
@@ -51,7 +50,7 @@ func (r *UserRouter) Connect(s *core.Server) {
 		return c.JSON(http.StatusOK, profile)
 	})
 
-	r.g.POST("/registration", func(c echo.Context) (err error) {
+	r.g.POST("/register", func(c echo.Context) (err error) {
 		userAuth := new(models.UserAuth)
 		if err = c.Bind(userAuth); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -64,6 +63,23 @@ func (r *UserRouter) Connect(s *core.Server) {
 			return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 		}
 		return c.String(http.StatusOK, "Registrated")
+	})
+
+	r.g.POST("/login", func(c echo.Context) (err error) {
+		userAuth := new(models.UserAuth)
+		if err = c.Bind(userAuth); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+		if err = c.Validate(userAuth); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+		token, loginErr := customAuth.Login(userAuth)
+		if loginErr != nil {
+			return echo.NewHTTPError(http.StatusUnauthorized, loginErr.Error())
+		}
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"token": token,
+		})
 	})
 
 	// [PUT] Input: Body (UserProfileUpdated)

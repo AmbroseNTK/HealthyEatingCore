@@ -3,5 +3,5 @@
     "connectionURL": "mongodb+srv://admin:admin@cluster0.zcocj.mongodb.net/healthy_eating_dev?retryWrites=true&w=majority",
     "db_name": "healthy_eating_dev",
     "firebase_key": "firebase_key.json",
-    "auth_secret": "&CJ+NAK3X=9*3NN_ktFhJ$9&uXf5JDmsGAueDYZAmLA&p7!ZpfVBREf$792*wFbjcdwVRkAC^!ef_XzCK5c-XkHF*!rBK8-Vs9@++S7rF!C-+6a4S+xUDcp%yAMY4#k8"
+    "auth_secret": "NNktFhJ9uXf5JDmsGAueDYZAmLAk8"
 }

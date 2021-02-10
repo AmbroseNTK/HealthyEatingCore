@@ -2,22 +2,23 @@ package business
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"main/core/models"
+	"time"
 
-	"github.com/cristalhq/jwt"
+	"github.com/pascaldekloe/jwt"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthBusiness struct {
 	DB     *mongo.Database
-	signer jwt.Signer
+	signer *jwt.HMAC
 }
 
 func NewAuthBusiness(DB *mongo.Database, key string) (*AuthBusiness, error) {
-	signer, err := jwt.NewHS512([]byte(key))
+
+	signer, err := jwt.NewHMAC(jwt.HS512, []byte(key))
 	if err != nil {
 		return &AuthBusiness{}, err
 	}
@@ -35,7 +36,7 @@ func (b *AuthBusiness) Register(user *models.UserAuth) error {
 		return errors.New(user.Email + " has already existed")
 	}
 
-	hash, hashError := bcrypt.GenerateFromPassword([]byte(user.Password), 21)
+	hash, hashError := bcrypt.GenerateFromPassword([]byte(user.Password), 7)
 	if hashError != nil {
 		return errors.New("Invalid password")
 	}
@@ -71,13 +72,21 @@ func (b *AuthBusiness) Login(user *models.UserAuth) (string, error) {
 	})
 
 	profileInDB := map[string]interface{}{}
+	profileInDB["email"] = user.Email
 	profile.Decode(profileInDB)
 
-	profileStr, _ := json.Marshal(profileInDB)
+	claims := jwt.Claims{}
+	claims.Issued = jwt.NewNumericTime(time.Now().Round(time.Second))
+	claims.Expires = jwt.NewNumericTime(time.Now().Add(30 * time.Minute).Round(time.Second))
+	claims.Set = profileInDB
+	claims.Issuer = "vn.edu.itss.healthy-food-core"
 
-	token, err := b.signer.Sign(profileStr)
+	token, err := b.signer.Sign(&claims)
+
+	tokenString := string(token)
+
 	if err != nil {
 		return "", err
 	}
-	return string(token), nil
+	return tokenString, nil
 }
