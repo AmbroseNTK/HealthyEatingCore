@@ -13,7 +13,8 @@ func main() {
 	server.Create()
 
 	server.Routers = []core.Router{
-		&routers.UserRouter{Name: "users"},
+		&routers.AuthRouter{Name: "v1/auth"},
+		&routers.UserRouter{Name: "v1/users"},
 	}
 
 	server.ConnectRouters()
