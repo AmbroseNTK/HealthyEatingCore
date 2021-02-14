@@ -1,7 +1,6 @@
 package models
 
 type UserProfile struct {
-	Id          string `json:"id" validate:"required"`
 	DisplayName string `json:"display_name" validate:"required"`
 	Email       string `json:"email" validate:"required,email"`
 	PhoneNumber string `json:"phone_number" validate:"required"`
@@ -12,7 +11,7 @@ type UserProfile struct {
 	Race        string `json:"race"`
 }
 
-type UserProfileUpdated struct {
+type UpdatedUserProfile struct {
 	DisplayName string `json:"display_name,omitempty"`
 	PhoneNumber string `json:"phone_number,omitempty"`
 	Height      uint   `json:"height,omitempty"`

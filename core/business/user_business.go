@@ -4,11 +4,20 @@ import (
 	"context"
 	"main/core/models"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type UserBusiness struct {
 	DB *mongo.Database
+}
+
+func (b *UserBusiness) CreateIndexes() {
+	b.DB.Collection("users").Indexes().CreateOne(context.TODO(), mongo.IndexModel{
+		Keys:    bson.M{"email": 1},
+		Options: options.Index().SetUnique(true),
+	})
 }
 
 func (b *UserBusiness) GetOneById(id string) (models.UserProfile, error) {
@@ -34,21 +43,19 @@ func (b *UserBusiness) Create(user models.UserProfile) error {
 	return nil
 }
 
-func (b *UserBusiness) Update(id string, userUpdated models.UserProfileUpdated) error {
+func (b *UserBusiness) Update(email string, userUpdated models.UpdatedUserProfile) error {
+
 	updatedResult := b.DB.Collection("users").FindOneAndUpdate(context.TODO(),
-		map[string]interface{}{
-			"id": id,
-		}, userUpdated)
+		bson.M{"email": email},
+		bson.M{"$set": userUpdated})
 	if updatedResult.Err() != nil {
 		return updatedResult.Err()
 	}
 	return nil
 }
 
-func (b *UserBusiness) Delete(id string) error {
-	_, err := b.DB.Collection("users").DeleteOne(context.TODO(), map[string]interface{}{
-		"id": id,
-	})
+func (b *UserBusiness) Delete(email string) error {
+	_, err := b.DB.Collection("users").DeleteOne(context.TODO(), bson.M{"email": email})
 	if err != nil {
 		return err
 	}
